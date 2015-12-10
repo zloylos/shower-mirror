@@ -4,7 +4,7 @@ const server = require('http').createServer(app);
 const io = require('socket.io')(server);
 const debug = require('debug')('shower-mirror');
 
-server.listen(process.env.PORT, () => debug('Server listening at port 80'));
+server.listen(process.env.PORT || 3000, () => debug('Server listening at port 80'));
 
 var usersCount = 0;
 io.on('connection', (socket) => {
