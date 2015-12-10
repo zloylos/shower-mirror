@@ -26,6 +26,20 @@ io.on('connection', (socket) => {
         }
     });
 
+    socket.on('next', () => {
+        if (socket.isOwner) {
+            debug('next');
+            socket.broadcast.emit('next');
+        }
+    });
+
+    socket.on('prev', () => {
+        if (socket.isOwner) {
+            debug('prev');
+            socket.broadcast.emit('prev');
+        }
+    });
+
     socket.on('disconect', () => {
         if (!usersCount) {return;}
         socket.broadcast.emit('user disconect', {

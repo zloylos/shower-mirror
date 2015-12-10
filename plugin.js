@@ -1,7 +1,9 @@
 var io = require('socket.io-client');
 var querystring = require('querystring');
 
-shower.modules.define('shower-mirror', function (provide) {
+var NEXT_PLUGIN_NAME = 'shower-next'
+
+shower.modules.define('shower-mirror', ['shower'], function (provide, globalShower) {
     /**
      * @param {Shower} sh.
      */
@@ -17,26 +19,74 @@ shower.modules.define('shower-mirror', function (provide) {
         this._setupListeners();
     }
 
-    Mirror.prototype.destroy = function () {
+    Mirror.prototype = {
+        destroy: function () {
 
-    };
+        },
 
-    Mirror.prototype._setupListeners = function () {
-        var _this = this;
+        _setupListeners: function () {
+            this._sh.player.events.on('activate', this._onSlideActivate, this);
 
-        this._sh.player.events.on('activate', function (event) {
-            _this._socket.emit('go', event.get('index'));
-        }, this);
+            this._socket
+                .on('go', this._onOwnerGo.bind(this))
+                .on('next', this._onOwnerNext.bind(this))
+                .on('prev', this._onOwnerPrev.bind(this));
 
-        this._socket.on('go', this._onOwnerGo.bind(this));
-    };
+            var nextPlugin = globalShower.plugins.get(NEXT_PLUGIN_NAME, this._sh);
+            if (nextPlugin) {
+                this._setupNextPlugin(nextPlugin);
+            } else {
+                this._pluginsListeners = globalShower.plugins.events.group()
+                    .on('add', function (e) {
+                        if (e.get('name') === NEXT_PLUGIN_NAME) {
+                            this._setupNextPlugin();
+                            this._pluginsListeners.offAll();
+                        }
+                    }, this);
+            }
+        },
 
-    Mirror.prototype._clearListeners = function () {
+        _clearListeners: function () {
 
-    };
+        },
 
-    Mirror.prototype._onOwnerGo = function (data) {
-        this._sh.player.go(data.index);
+        _setupNextPlugin: function (plugin) {
+            if (!plugin) {
+                plugin = globalShower.plugins.get(NEXT_PLUGIN_NAME, this._sh);
+            }
+            this._nextPlugin = plugin;
+            this._nextPluginListeners = plugin.events.group()
+                .on('next', this._onNext, this)
+                .on('prev', this._onPrev, this);
+        },
+
+        _onSlideActivate: function (event) {
+            this._socket.emit('go', event.get('index'));
+        },
+
+        _onNext: function () {
+            this._socket.emit('next');
+        },
+
+        _onPrev: function () {
+            this._socket.emit('prev');
+        },
+
+        _onOwnerGo: function (data) {
+            this._sh.player.go(data.index);
+        },
+
+        _onOwnerPrev: function () {
+            if (this._nextPlugin) {
+                this._nextPlugin.prev();
+            }
+        },
+
+        _onOwnerNext: function () {
+            if (this._nextPlugin) {
+                this._nextPlugin.next();
+            }
+        }
     };
 
     provide(Mirror);
