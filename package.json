@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "webpack --config webpack.js",
+    "start": "DEBUG=shower-mirror PORT=3000 KEY=123 node --harmony index.js"
   },
   "author": "Denis Hananein",
   "license": "MIT",
@@ -14,9 +15,7 @@
     "socket.io": "^1.3.7",
     "socket.io-client": "^1.3.7"
   },
-
-  "scripts": {
-      "build": "webpack --config webpack.js",
-      "start": "DEBUG=shower-mirror PORT=3000 KEY=123 node --harmony index.js"
+  "devDependencies": {
+    "webpack": "^1.12.9"
   }
 }
