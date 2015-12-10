@@ -1,11 +1,8 @@
 const express = require('express');
 const app = express();
-const server = require('http').createServer(app);
-const io = require('socket.io')(server);
-const debug = require('debug')('shower-mirror');
 const port = process.env.PORT || 3000;
-
-server.listen(port, () => debug('Server listening at port %n', port));
+const io = require('socket.io').listen(app.listen(port, () => debug('listening %n', port)));
+const debug = require('debug')('shower-mirror');
 
 var usersCount = 0;
 io.on('connection', (socket) => {
