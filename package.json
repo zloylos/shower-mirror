@@ -4,17 +4,10 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build": "webpack --config webpack.js",
-    "start": "DEBUG=shower-mirror KEY=123 node --harmony index.js"
+    "build": "webpack --config webpack.js"
   },
-  "author": "Denis Hananein",
+  "author": "Denis Hananein <i@zloy.me>",
   "license": "MIT",
-  "dependencies": {
-    "debug": "^2.2.0",
-    "express": "^4.13.3",
-    "socket.io": "^1.3.7",
-    "socket.io-client": "^1.3.7"
-  },
   "devDependencies": {
     "webpack": "^1.12.9"
   }

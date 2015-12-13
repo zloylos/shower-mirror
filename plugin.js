@@ -1,4 +1,3 @@
-var io = require('socket.io-client');
 var querystring = require('querystring');
 
 var NEXT_PLUGIN_NAME = 'shower-next'
@@ -10,10 +9,9 @@ shower.modules.define('shower-mirror', ['shower'], function (provide, globalShow
     function Mirror(sh) {
         this._sh = sh;
         var containerData = sh.container.getElement().dataset;
-        var server = containerData.server || 'http://localhost:3000';
         var key = querystring.parse(document.location.search.slice(1)).key;
 
-        this._socket = io(server);
+        this._socket = io();
         this._socket.emit('join', key);
 
         this._setupListeners();
@@ -47,7 +45,10 @@ shower.modules.define('shower-mirror', ['shower'], function (provide, globalShow
         },
 
         _clearListeners: function () {
-
+            this._sh.player.events.off('activate', this._onSlideActivate, this);
+            if (this._nextPluginListeners) {
+                this._nextPluginListeners.offAll();
+            }
         },
 
         _setupNextPlugin: function (plugin) {
